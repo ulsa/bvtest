@@ -36,6 +36,9 @@ On the second tab, change _Eligibility_ from `A` to `B`. This should have trigge
 of _Total weight_, which should in turn have changed the tab title to a green checkbox. For some
 reason this doesn't happen.
 
+If we actively change to that tab, then the `onTabShow` callback fires, and he tab is revalidated,
+but I can't seem to get it to happen through a `reaction`.
+
 ## License
 
 Copyright © 2015 @ulsa
