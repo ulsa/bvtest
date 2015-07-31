@@ -1,6 +1,7 @@
 (ns bvtest.weights
   (:require-macros [reagent.ratom :refer [reaction]])
   (:require [reagent.core :as reagent :refer [atom]]
+            [clojure.string :as string]
             [goog.string :as gstring]
             goog.string.format))
 
@@ -20,6 +21,10 @@
 
 (defn print-state [& [prefix]]
   (prn prefix @state {:max-total-weight @max-total-weight}))
+
+(defn int-unless-blank [val]
+  (when-not (string/blank? val)
+    (int val)))
 
 (defn weights-page []
   [:div.container.col-xs-6
@@ -41,7 +46,7 @@
          "Total weight (kg):"]
         [:div {:class "col-xs-5"}
          [:input
-          {:on-change   #(do (swap! state assoc :total-weight (int (-> % .-target .-value)))
+          {:on-change   #(do (swap! state assoc :total-weight (int-unless-blank (-> % .-target .-value)))
                              (print-state "total"))
            :id          "in-total-weight"
            :name        "in-total-weight"
@@ -56,7 +61,7 @@
          "Unloaded weight (kg):"]
         [:div {:class "col-xs-5"}
          [:input
-          {:on-change   #(do (swap! state assoc :unloaded-weight (int (-> % .-target .-value)))
+          {:on-change   #(do (swap! state assoc :unloaded-weight (int-unless-blank (-> % .-target .-value)))
                              (print-state "unloaded"))
            :id          "in-unloaded-weight"
            :name        "in-unloaded-weight"
