@@ -99,78 +99,77 @@
         [:a {:href "javascript:void(0)"} "Next"]]]]]]])
 
 (defn weights-page-did-mount []
-  (.ready (js/$ js/document)
-          (fn []
 
-            ;;; validator
+  ;;; validator
 
-            (let [validator (.bootstrapValidator
-                              (js/$ "#form-search")
-                              (clj->js {"excluded"      [":disabled"]
-                                        "feedbackIcons" {"valid"      "glyphicon glyphicon-ok"
-                                                         "invalid"    "glyphicon glyphicon-remove"
-                                                         "validating" "glyphicon glyphicon-refresh"}
-                                        "fields"        {"in-total-weight" {"validators" {"integer"     {}
-                                                                                          "notEmpty"    {}
-                                                                                          "between"     {"min" 0
-                                                                                                         "max" (fn [value validator field]
-                                                                                                                 @max-total-weight)}
-                                                                                          "greaterThan" {"value"     "in-unloaded-weight"
-                                                                                                         "inclusive" false}}}
-                                                         "in-unloaded-weight"  {"validators" {"integer"  {}
-                                                                                          "notEmpty" {}
-                                                                                          "between"  {"min" 0
-                                                                                                      "max" (fn [value validator field]
-                                                                                                              @max-total-weight)}
-                                                                                          "lessThan" {"value"     "in-total-weight"
-                                                                                                      "inclusive" false}}}}}))]
-              ;; Called when a field is invalid
-              (.on validator "error.field.bv"
-                   (fn [e data]
-                     ;; data.element is the field element
-                     (let [tab-pane (-> data .-element (.parents ".tab-pane"))
-                           tab-id (.attr tab-pane "id")
-                           selector (str "a[href=\"#" tab-id "\"][data-toggle=\"tab\"]")]
-                       (-> (js/$ selector)
-                           .parent
-                           (.find "i")
-                           (.removeClass "fa-check")
-                           (.addClass "fa-times")))))
-              ;; Called when a field is valid
-              (.on validator "success.field.bv"
-                   (fn [e data]
-                     ;; data.bv is the validator instance
-                     ;; data.element is the field element
-                     (let [tab-pane (-> data .-element (.parents ".tab-pane"))
-                           tab-id (.attr tab-pane "id")
-                           selector (str "a[href=\"#" tab-id "\"][data-toggle=\"tab\"]")
-                           icon (-> (js/$ selector)
-                                    .parent
-                                    (.find "i")
-                                    (.removeClass "fa-check fa-times"))
-                           tab-valid? (.isValidContainer (.-bv data) tab-pane)]
-                       (.addClass icon (if tab-valid? "fa-check" "fa-times"))))))
+  (let [validator (.bootstrapValidator
+                    (js/$ "#form-search")
+                    (clj->js {"excluded"      [":disabled"]
+                              "feedbackIcons" {"valid"      "glyphicon glyphicon-ok"
+                                               "invalid"    "glyphicon glyphicon-remove"
+                                               "validating" "glyphicon glyphicon-refresh"}
+                              "fields"        {"in-total-weight"    {"validators" {"integer"     {}
+                                                                                   "notEmpty"    {}
+                                                                                   "between"     {"min" 0
+                                                                                                  "max" (fn [value validator field]
+                                                                                                          @max-total-weight)}
+                                                                                   "greaterThan" {"value"     "in-unloaded-weight"
+                                                                                                  "inclusive" false}}}
+                                               "in-unloaded-weight" {"validators" {"integer"  {}
+                                                                                   "notEmpty" {}
+                                                                                   "between"  {"min" 0
+                                                                                               "max" (fn [value validator field]
+                                                                                                       @max-total-weight)}
+                                                                                   "lessThan" {"value"     "in-total-weight"
+                                                                                               "inclusive" false}}}}}))]
+    ;; Called when a field is invalid
+    (.on validator "error.field.bv"
+         (fn [e data]
+           ;; data.element is the field element
+           (let [tab-pane (-> data .-element (.parents ".tab-pane"))
+                 tab-id (.attr tab-pane "id")
+                 selector (str "a[href=\"#" tab-id "\"][data-toggle=\"tab\"]")]
+             (-> (js/$ selector)
+                 .parent
+                 (.find "i")
+                 (.removeClass "fa-check")
+                 (.addClass "fa-times")))))
+    ;; Called when a field is valid
+    (.on validator "success.field.bv"
+         (fn [e data]
+           ;; data.bv is the validator instance
+           ;; data.element is the field element
+           (let [tab-pane (-> data .-element (.parents ".tab-pane"))
+                 tab-id (.attr tab-pane "id")
+                 selector (str "a[href=\"#" tab-id "\"][data-toggle=\"tab\"]")
+                 icon (-> (js/$ selector)
+                          .parent
+                          (.find "i")
+                          (.removeClass "fa-check fa-times"))
+                 tab-valid? (.isValidContainer (.-bv data) tab-pane)]
+             (.addClass icon (if tab-valid? "fa-check" "fa-times"))))))
 
-            ;;; wizard
+  ;;; wizard
 
-            (let [wizard (js/$ "#search-wizard")]
-              (.bootstrapWizard
-                wizard
-                (clj->js {"tabClass"  "nav nav-tabs"
-                          "onTabShow" (fn [tab navigation index]
-                                        ;; revalidate weights on every tab show
-                                        (let [tab-count (.-length (.children navigation))
-                                              current (inc index)]
-                                          (print-state "onTabShow")
-                                          (let [validator (.data (js/$ "#form-search") "bootstrapValidator")]
-                                            (.revalidateField validator "in-total-weight")
-                                            (.revalidateField validator "in-unloaded-weight"))))})))
-            ;; revalidate total weight when max limit changes
-            ;; TODO this does not fire for some reason
-            (reaction
-              (let [validator (.data (js/$ "#form-search") "bootstrapValidator")]
-                (print-state (str "revalidating due to changed " @max-total-weight))
-                (.revalidateField validator "in-total-weight"))))))
+  (let [wizard (js/$ "#search-wizard")]
+    (.bootstrapWizard
+      wizard
+      (clj->js {"tabClass"  "nav nav-tabs"
+                "onTabShow" (fn [tab navigation index]
+                              ;; revalidate weights on every tab show
+                              (let [tab-count (.-length (.children navigation))
+                                    current (inc index)]
+                                (print-state "onTabShow")
+                                (let [validator (.data (js/$ "#form-search") "bootstrapValidator")]
+                                  (.revalidateField validator "in-total-weight")
+                                  (.revalidateField validator "in-unloaded-weight"))))})))
+  ;; revalidate total weight when max limit changes
+  ;; TODO this does not fire for some reason
+  (reaction
+    (when @max-total-weight
+      (print "revalidating total weight")
+      (let [validator (.data (js/$ "#form-search") "bootstrapValidator")]
+        (.revalidateField validator "in-total-weight")))))
 
 (defn weights-page-component []
   (reagent/create-class {:reagent-render      weights-page
