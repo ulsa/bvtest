@@ -21,7 +21,7 @@
       [:li {:class (when (= :about (session/get :page)) "active")}
        [:a {:href "#/about"} "About"]]
       [:li {:class (when (= :weights (session/get :page)) "active")}
-       [:a {:href "#/weights"} "Search weights"]]]]]])
+       [:a {:href "#/weights"} "Weights"]]]]]])
 
 (defn about-page []
   [:div.container
@@ -45,9 +45,9 @@
               {:__html (md->html docs)}}]]])])
 
 (def pages
-  {:home  #'home-page
-   :about #'about-page
-   :weights   #'weights/weights-page-component})
+  {:home    #'home-page
+   :about   #'about-page
+   :weights #'weights/weights-page-component})
 
 (defn page []
   [(pages (session/get :page))])
@@ -62,7 +62,7 @@
 (secretary/defroute "/about" []
   (session/put! :page :about))
 
-(secretary/defroute "/car" []
+(secretary/defroute "/weights" []
   (session/put! :page :weights))
 
 ;; -------------------------
