@@ -1,5 +1,5 @@
 (ns bvtest.weights
-  (:require-macros [reagent.ratom :refer [reaction]])
+  (:require-macros [reagent.ratom :refer [reaction run!]])
   (:require [reagent.core :as reagent :refer [atom]]
             [clojure.string :as string]))
 
@@ -152,9 +152,9 @@
                                                               (.revalidateField validator "in-unloaded-weight"))))})))
                               ;; revalidate total weight when max limit changes
                               ;; TODO this does not fire for some reason
-                              (reaction
+                              (run!
                                 (when @max-total-weight
-                                  (print "revalidating total weight")
+                                  (print "revalidating total weight" @max-total-weight)
                                   (let [validator (.data (js/$ "#form-search") "bootstrapValidator")]
                                     (.revalidateField validator "in-total-weight")
                                     (.revalidateField validator "in-unloaded-weight")))))})))
