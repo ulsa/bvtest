@@ -151,7 +151,6 @@
                                                               (.revalidateField validator "in-total-weight")
                                                               (.revalidateField validator "in-unloaded-weight"))))})))
                               ;; revalidate total weight when max limit changes
-                              ;; TODO this does not fire for some reason
                               (run!
                                 (when @max-total-weight
                                   (print "revalidating total weight" @max-total-weight)
