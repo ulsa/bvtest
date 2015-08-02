@@ -12,7 +12,7 @@ The application found by clicking the `Weights` menu is a two-page wizard:
 2. Select _Eligibility_, either `A` or `B`. If `B` is selected, the maximum _Total weight_ changes 
 from 3000 to 4000, using a `reaction` called `@max-total-weight`. This should in turn trigger another
 `reaction` that causes a re-validation of the _Total weight_ field, but that doesn't seem to happen.
-**Update:** This has been solved in commit f0c2bda which changed to a `run!` call. Thanks to @antishok
+**Update:** This has been solved in commit [f0c2bda](https://github.com/ulsa/bvtest/commit/f0c2bdac885536029f2768f0af464ff459ea025c) which changed to a `run!` call. Thanks to @antishok
 for the suggestion.
 
 ## Prerequisites
@@ -36,10 +36,10 @@ On the first tab, enter `3001` in _Total weight_ and `2000` in _Unloaded weight_
 
 On the second tab, change _Eligibility_ from `A` to `B`. This should have triggered revalidation
 of _Total weight_, which should in turn have changed the tab title to a green checkbox. For some
-reason this doesn't happen. **Update:** Again, this has been solved in commit f0c2bda.
+reason this doesn't happen. **Update:** Again, this has been solved in commit [f0c2bda](https://github.com/ulsa/bvtest/commit/f0c2bdac885536029f2768f0af464ff459ea025c).
 
 If we actively change to that tab, then the `onTabShow` callback fires, and he tab is revalidated,
-but I can't seem to get it to happen through a `reaction`. **Update:** As I said, f0c2bda.
+but I can't seem to get it to happen through a `reaction`. **Update:** As I said, [f0c2bda](https://github.com/ulsa/bvtest/commit/f0c2bdac885536029f2768f0af464ff459ea025c).
 
 ## License
 
