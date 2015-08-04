@@ -1,19 +1,19 @@
 # bvtest
 
-Example showing a problem getting a `reaction` to fire as a response to a `ratom`
-changing value. The example is a plain `luminus new bvtest +cljs` template project with 
-BootstrapValidator and jQuery Bootstrap Wizard added.
+Example project used to illustrate various problems with using BootstrapValidator from Reagent.
+The example is a plain `luminus new bvtest +cljs` template project with 
+BootstrapValidator and jQuery Bootstrap Wizard added, and simple two-page wizard
+for entering vehicle weights.
 
-The application found by clicking the `Weights` menu is a two-page wizard:
+The application is found by clicking `Weights` in the top menu.
 
-1. Fill in two weights:
-    * _Total weight_ (max value normally 3000) 
-    * _Unloaded weight_
-2. Select _Eligibility_, either `A` or `B`. If `B` is selected, the maximum _Total weight_ changes 
-from 3000 to 4000, using a `reaction` called `@max-total-weight`. This should in turn trigger another
-`reaction` that causes a re-validation of the _Total weight_ field, but that doesn't seem to happen.
-**Update:** This has been solved in commit [f0c2bda](https://github.com/ulsa/bvtest/commit/f0c2bdac885536029f2768f0af464ff459ea025c) which changed to a `run!` call. Thanks to @antishok
-for the suggestion.
+* Fill in vehicle registration number (eg 'a') and click `Get weights`.
+
+Getting the weights from a registration number almost works, insofar as the fields will contain the
+new values. The problem is that validation is not triggered when the `:value` changes. If I set the
+field value using jQuery, the validation works, but then Reagent doesn't display the value. If I
+set the `:value` _and_ set the value using jQuery, then I get correct validation and the value is
+displayed. What is the reason for this?
 
 ## Prerequisites
 
@@ -31,15 +31,39 @@ Start figwheel from another terminal:
 
     lein figwheel
 
-On the first tab, enter `3001` in _Total weight_ and `2000` in _Unloaded weight_. There should be a validation error saying
-"Please enter a value between 0 and 3000". That's expected.
+On the first tab, enter `a` in _Regnr_ and click _Get weights_. _Total weight_ is set to `2000` and _Unloaded weight_
+is set to `1500`. The validation should be saying OK, but the validation framework still thinks the fields are empty.
+Look at the code:
 
-On the second tab, change _Eligibility_ from `A` to `B`. This should have triggered revalidation
-of _Total weight_, which should in turn have changed the tab title to a green checkbox. For some
-reason this doesn't happen. **Update:** Again, this has been solved in commit [f0c2bda](https://github.com/ulsa/bvtest/commit/f0c2bdac885536029f2768f0af464ff459ea025c).
+```clojure
+(defn reset-weights [state params result max-total-weight]
+  ;; enable these in order for validation to work
+  #_(.val (js/$ "#in-total-weight") (:total-weight @result))
+  #_(.val (js/$ "#in-unloaded-weight") (:unloaded-weight @result))
 
-If we actively change to that tab, then the `onTabShow` callback fires, and he tab is revalidated,
-but I can't seem to get it to happen through a `reaction`. **Update:** As I said, [f0c2bda](https://github.com/ulsa/bvtest/commit/f0c2bdac885536029f2768f0af464ff459ea025c).
+  (swap! state assoc :total-weight (:total-weight @result))
+  (swap! state assoc :unloaded-weight (:unloaded-weight @result))
+  (print-state 'reset-weights @state @max-total-weight)
+  (reset! result nil)
+  (reset! params {}))
+```
+
+Let's enable the jQuery calls that also set the value:
+
+```clojure
+(defn reset-weights [state params result max-total-weight]
+  ;; enable these in order for validation to work
+  (.val (js/$ "#in-total-weight") (:total-weight @result))
+  (.val (js/$ "#in-unloaded-weight") (:unloaded-weight @result))
+
+  (swap! state assoc :total-weight (:total-weight @result))
+  (swap! state assoc :unloaded-weight (:unloaded-weight @result))
+  (print-state 'reset-weights @state @max-total-weight)
+  (reset! result nil)
+  (reset! params {}))
+```
+
+Now everything works as it should. But why would I need to set the value both ways?
 
 ## License
 
